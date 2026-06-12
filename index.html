@@ -4,156 +4,693 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Stok Terpusat & Rekap Otomatis Online</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
-        h2, h3, h4 { color: #333; margin-top: 0; }
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 1300px; margin: 0 auto; }
-        
-        .login-box { max-width: 350px; margin: 80px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-        .login-box h3 { text-align: center; margin-bottom: 20px; }
-        .login-box input, .login-box button { width: 100%; padding: 10px; margin-bottom: 12px; box-sizing: border-box; }
-        .btn-login { background-color: #007bff; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        .btn-login:hover { background-color: #0069d9; }
+        :root {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent-blue: #2563EB;
+            --accent-blue-hover: #1D4ED8;
+            --success: #10B981;
+            --success-hover: #059669;
+            --danger: #EF4444;
+            --danger-hover: #DC2626;
+            --warning: #F59E0B;
+            --warning-hover: #D97706;
+            --bg-body: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+        }
 
-        .user-info { display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; }
-        .btn-logout { background-color: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        * {
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* ----------------------------------
+           LOGIN INTERFACE (BABYBOSS STYLE)
+        ---------------------------------- */
+        .login-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            padding: 20px;
+        }
+
+        .login-box { 
+            width: 100%;
+            max-width: 420px; 
+            background: var(--card-bg); 
+            padding: 40px 35px; 
+            border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+            text-align: center;
+        }
+
+        .babyboss-logo-container {
+            margin-bottom: 15px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .baby-avatar {
+            width: 84px;
+            height: 84px;
+            background: #FFE4E6;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 4px solid #FFF;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .baby-avatar::before {
+            content: '';
+            position: absolute;
+            top: 32px;
+            width: 64px;
+            height: 18px;
+            background: #111827;
+            border-radius: 4px 4px 8px 8px;
+            z-index: 2;
+        }
+
+        .baby-avatar::after {
+            content: '';
+            position: absolute;
+            top: 34px;
+            width: 8px;
+            height: 4px;
+            background: #4B5563;
+            z-index: 3;
+        }
+
+        .hair-tuft {
+            position: absolute;
+            top: -12px;
+            left: 32px;
+            width: 20px;
+            height: 16px;
+            background: #D97706;
+            border-radius: 100% 0% 100% 0%;
+            transform: rotate(-15deg);
+        }
+
+        .pacifier {
+            position: absolute;
+            bottom: 14px;
+            width: 14px;
+            height: 14px;
+            background: #3B82F6;
+            border-radius: 50%;
+            border: 2px solid white;
+            z-index: 1;
+        }
+
+        .logo-text-main {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -1px;
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+        }
+
+        .text-blue { color: #1E3A8A; }
+        .text-gold { 
+            background: linear-gradient(45deg, #B45309, #D97706, #F59E0B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .system-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .login-box input { 
+            width: 100%; 
+            padding: 14px 18px; 
+            margin-bottom: 16px; 
+            border-radius: 12px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+            background-color: #F8FAFC;
+        }
+
+        .login-box input:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-login-premium { 
+            width: 100%;
+            padding: 14px 18px;
+            background: linear-gradient(90deg, #1E3A8A 0%, #3B82F6 100%);
+            color: white; 
+            border: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border-radius: 12px;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-login-premium:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+
+
+        /* ----------------------------------
+           PRO+ PROFESSIONAL DASHBOARD INTERFACE
+        ---------------------------------- */
+        .pro-navbar {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo i {
+            color: var(--warning);
+        }
+
+        .nav-user-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-pill {
+            background-color: var(--primary-light);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .user-pill strong {
+            color: #FFF;
+        }
+
+        .role-indicator {
+            color: var(--warning);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .btn-logout-premium {
+            background: linear-gradient(135deg, var(--danger) 0%, #B91C1C 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-logout-premium:hover {
+            background: #B91C1C;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Container & Cards Layout */
+        .container { 
+            max-width: 1400px; 
+            margin: 30px auto; 
+            padding: 0 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .pro-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .card-header-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .card-header-container h3, .card-header-container h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .card-header-container i {
+            font-size: 1.4rem;
+            color: var(--accent-blue);
+        }
+
+        /* Form Controls Pro Style */
+        .pro-form { 
+            display: flex; 
+            gap: 12px; 
+            flex-wrap: wrap; 
+            align-items: center;
+        }
+
+        .pro-form-group {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .pro-form-group i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .pro-input, .pro-select { 
+            width: 100%;
+            padding: 12px 14px 12px 40px; 
+            border: 1px solid var(--border); 
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background-color: #F8FAFC;
+            font-family: inherit;
+        }
+
+        .pro-input:focus, .pro-select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background-color: #FFF;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Buttons Premium Action */
+        .btn-action-premium {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-pro-success { background-color: var(--success); color: white; }
+        .btn-pro-success:hover { background-color: var(--success-hover); }
         
-        form { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-        input, button, select { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn-submit { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; }
-        .btn-submit:hover { background-color: #218838; }
-        .btn-export { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
-        .btn-export-admin { background-color: #ffc107; color: black; border: none; font-weight: bold; cursor: pointer; padding: 10px; border-radius: 4px;}
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 25px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #343a40; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .badge-user { background-color: #17a2b8; color: white; padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        
-        .admin-panel { margin-top: 40px; background: #fff3cd; border: 1px solid #ffeeba; padding: 20px; border-radius: 8px; }
-        .rekap-panel { margin-top: 30px; background: #e2e3e5; border: 1px solid #d6d8db; padding: 20px; border-radius: 8px; }
-        .grid-admin { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-top: 15px; }
-        .btn-edit { background-color: #ffc107; color: black; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; }
-        .btn-delete { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; }
-        .btn-batal { background-color: #6c757d; color: white; border: none; cursor: pointer; }
-        
-        .no-export { display: table-cell; }
-        .filter-box { background: #e2e3e5; padding: 15px; border-radius: 6px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; }
-        .badge-sukses { background-color: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .badge-bahaya { background-color: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .loading-text { color: #007bff; font-weight: bold; display: none; margin-left: 10px; }
+        .btn-pro-info { background-color: var(--accent-blue); color: white; }
+        .btn-pro-info:hover { background-color: var(--accent-blue-hover); }
+
+        .btn-pro-warning { background-color: var(--warning); color: #000; }
+        .btn-pro-warning:hover { background-color: var(--warning-hover); }
+
+        .btn-pro-secondary { background-color: var(--text-muted); color: white; }
+        .btn-pro-secondary:hover { background-color: #475569; }
+
+        /* Modern Filter Controls */
+        .filter-flex-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: #F1F5F9;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .filter-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Modern Premium Tables */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: inset 0 0 0 1px var(--border);
+            margin-top: 10px;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th { 
+            background-color: #F1F5F9; 
+            color: #475569; 
+            font-weight: 700;
+            padding: 14px 18px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td { 
+            padding: 14px 18px; 
+            border-bottom: 1px solid var(--border);
+            background-color: white;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #F8FAFC;
+        }
+
+        /* Badges Professional Layout */
+        .badge-premium {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .bg-badge-success { background-color: #D1FAE5; color: #065F46; }
+        .bg-badge-danger { background-color: #FEE2E2; color: #991B1B; }
+        .bg-badge-info { background-color: #DBEAFE; color: #1E40AF; }
+
+        /* Action Buttons on Tables (Keren & Kecil) */
+        .btn-table-action {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 4px;
+        }
+
+        .btn-table-edit { background-color: #FEF3C7; color: #92400E; }
+        .btn-table-edit:hover { background-color: #FDE68A; }
+
+        .btn-table-delete { background-color: #FEE2E2; color: #991B1B; }
+        .btn-table-delete:hover { background-color: #FCA5A5; }
+
+        /* Panels Admin Controls Section */
+        .admin-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 992px) {
+            .admin-grid-layout { grid-template-columns: 1fr; }
+            .pro-form { flex-direction: column; align-items: stretch; }
+            .btn-action-premium { justify-content: center; }
+        }
+
+        .loading-text { 
+            color: var(--accent-blue); 
+            font-weight: 600; 
+            display: none; 
+            align-items: center;
+            gap: 6px;
+        }
     </style>
 </head>
 <body>
 
-<div id="loginPage" class="login-box">
-    <h3>Sistem Stok Logistik (Online)</h3>
-    <form id="formLogin" onsubmit="prosesLogin(event)">
-        <input type="text" id="loginUsername" placeholder="Username / ID User" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
-        <button type="submit" class="btn-login">Masuk ke Sistem</button>
-    </form>
+<div id="loginPage" class="login-wrapper">
+    <div class="login-box">
+        <div class="babyboss-logo-container">
+            <div class="baby-avatar">
+                <div class="hair-tuft"></div>
+                <div class="pacifier"></div>
+            </div>
+            <h1 class="logo-text-main">
+                <span class="text-blue">BABY</span><span class="text-gold">BOSS</span>
+            </h1>
+            <div class="system-subtitle">Online Inventory System</div>
+        </div>
+        
+        <form id="formLogin" onsubmit="prosesLogin(event)" style="display: block; margin: 0; width: 100%;">
+            <input type="text" id="loginUsername" placeholder="Username / ID User" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit" class="btn-login-premium">
+                <i class="fa-solid fa-right-to-bracket"></i> MASUK KE SISTEM
+            </button>
+        </form>
+    </div>
 </div>
 
-<div id="mainPage" class="container" style="display: none;">
-    <div class="user-info">
-        <div>Log masuk sebagai: <strong id="namaUserAktif">Nama User</strong> <span id="roleBadge" style="font-style: italic; color: #666;"></span></div>
-        <button class="btn-logout" onclick="prosesLogout()">Keluar Aplikasi (Logout)</button>
-    </div>
-
-    <h2>Manajemen Input Rekap Stok Barang Terpusat</h2>
+<div id="mainPage" style="display: none;">
     
-    <form id="stokForm">
-        <input type="hidden" id="editRowId" value="-1">
-        
-        <input type="text" id="kodeBarang" placeholder="Kode Barang" required>
-        <input type="text" id="namaBarang" placeholder="Nama Barang" required>
-        <input type="number" id="jumlahStok" placeholder="Jumlah" required>
-        <select id="status">
-            <option value="Stok Awal">Stok Awal / Masuk</option>
-            <option value="Keluar">Barang Keluar</option>
-        </select>
-        <button type="submit" id="btnSimpan" class="btn-submit">Tambah Data Online</button>
-        <button type="button" id="btnBatalEdit" class="btn-batal" style="display: none;" onclick="resetFormInput()">Batal</button>
-        <span id="loadingForm" class="loading-text">Memproses data ke cloud...</span>
-        <button type="button" class="btn-export" onclick="exportKeExcel('tabelStok', 'Log_Transaksi_User')">Export Log Transaksi</button>
-    </form>
-
-    <div class="filter-box">
-        <strong>Riwayat Log Online (Semua Toko):</strong>
-        <select id="filterPetugas" onchange="tampilkanDataLog()">
-            <option value="Semua">Tampilkan Semua Petugas</option>
-        </select>
-        <button onclick="muatDataDariCloud()" style="padding: 5px 10px; cursor:pointer;">🔄 Segarkan Data (Refresh)</button>
-    </div>
-
-    <table id="tabelStok">
-        <thead>
-            <tr>
-                <th>Waktu Input</th>
-                <th>Kode Barang</th>
-                <th>Nama Barang</th>
-                <th>Jumlah</th>
-                <th>Status</th>
-                <th>Petugas Input</th>
-                <th class="no-export">Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="dataStok"></tbody>
-    </table>
-
-    <div id="adminRekapPanel" class="rekap-panel" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3>📊 Rekap Otomatis Akumulasi Stok Global (Semua Cabang)</h3>
-            <button class="btn-export-admin" onclick="exportKeExcel('tabelRekapGlobal', 'Rekap_Stok_Global_Terhitung')">Export Hasil Rekap ke Excel</button>
+    <nav class="pro-navbar">
+        <div class="nav-logo">
+            <i class="fa-solid fa-cubes-stacked"></i> 
+            <span>BABYBOSS <span style="font-weight:300; font-size:1rem; opacity:0.8;">PRO+ INVENTORY</span></span>
         </div>
-        <table id="tabelRekapGlobal">
-            <thead>
-                <tr style="background-color: #111;">
-                    <th>Kode Barang</th>
-                    <th>Nama Barang</th>
-                    <th>Total Stok Masuk</th>
-                    <th>Total Barang Keluar</th>
-                    <th>Sisa Stok Akhir</th>
-                </tr>
-            </thead>
-            <tbody id="dataRekapGlobal"></tbody>
-        </table>
-    </div>
+        <div class="nav-user-area">
+            <div class="user-pill">
+                <i class="fa-solid fa-circle-user" style="color: var(--accent-blue); font-size:1.1rem;"></i>
+                <span>User: <strong id="namaUserAktif">Nama User</strong> <span id="roleBadge" class="role-indicator"></span></span>
+            </div>
+            <button class="btn-logout-premium" onclick="prosesLogout()">
+                <i class="fa-solid fa-power-off"></i> Keluar Sistem
+            </button>
+        </div>
+    </nav>
 
-    <div id="adminControlPanel" class="admin-panel" style="display: none;">
-        <h3>🛡️ Panel Kontrol Akun Staff (Master Control Online)</h3>
-        <div class="grid-admin">
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #ddd;">
-                <h4>Tambah / Ubah Password Akun</h4>
-                <form id="userManagementForm" onsubmit="simpanUserbaru(event)" style="display: flex; flex-direction: column; gap: 10px;">
-                    <input type="text" id="newUsername" placeholder="Username User" required>
-                    <input type="text" id="newPassword" placeholder="Password Baru" required>
-                    <button type="submit" id="btnSimpanUser" style="background: #007bff; color: white; border: none; font-weight: bold; padding: 10px; cursor: pointer;">Simpan ke Cloud</button>
+    <div class="container">
+        <div class="dashboard-grid">
+            
+            <div class="pro-card">
+                <div class="card-header-container">
+                    <i class="fa-solid fa-square-plus" style="color:var(--success);"></i>
+                    <h2>Manajemen Input Rekap Stok Barang Terpusat</h2>
+                </div>
+                
+                <form id="stokForm" class="pro-form">
+                    <input type="hidden" id="editRowId" value="-1">
+                    
+                    <div class="pro-form-group">
+                        <i class="fa-solid fa-barcode"></i>
+                        <input type="text" id="kodeBarang" class="pro-input" placeholder="Kode Barang" required>
+                    </div>
+                    
+                    <div class="pro-form-group">
+                        <i class="fa-solid fa-box-open"></i>
+                        <input type="text" id="namaBarang" class="pro-input" placeholder="Nama Barang" required>
+                    </div>
+                    
+                    <div class="pro-form-group">
+                        <i class="fa-solid fa-arrow-up-9-1"></i>
+                        <input type="number" id="jumlahStok" class="pro-input" placeholder="Jumlah Kuantitas" required>
+                    </div>
+                    
+                    <div class="pro-form-group">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <select id="status" class="pro-select" style="padding-left: 40px;">
+                            <option value="Stok Awal">Stok Awal / Masuk</option>
+                            <option value="Keluar">Barang Keluar</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" id="btnSimpan" class="btn-action-premium btn-pro-success">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> <span id="textTombolSimpan">Tambah Data Online</span>
+                    </button>
+                    
+                    <button type="button" id="btnBatalEdit" class="btn-action-premium btn-pro-secondary" style="display: none;" onclick="resetFormInput()">
+                        <i class="fa-solid fa-ban"></i> Batal
+                    </button>
+                    
+                    <span id="loadingForm" class="loading-text">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Memproses data cloud...
+                    </span>
+                    
+                    <button type="button" class="btn-action-premium btn-pro-info" style="margin-left:auto;" onclick="exportKeExcel('tabelStok', 'Log_Transaksi_User')">
+                        <i class="fa-solid fa-file-excel"></i> Export Log Transaksi
+                    </button>
                 </form>
             </div>
-            
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #ddd;">
-                <h4>Daftar Akses Terdaftar</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Password</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="daftarUserTabel"></tbody>
-                </table>
+
+            <div class="pro-card">
+                <div class="filter-flex-box">
+                    <div class="filter-inputs">
+                        <i class="fa-solid fa-filter" style="color: var(--text-muted);"></i>
+                        <strong>Filter Riwayat Log (Semua Toko):</strong>
+                        <select id="filterPetugas" class="pro-select" style="padding: 6px 12px 6px 12px; width:auto; background:white;" onchange="tampilkanDataLog()">
+                            <option value="Semua">Tampilkan Semua Petugas</option>
+                        </select>
+                    </div>
+                    <button class="btn-action-premium btn-pro-secondary" style="padding: 8px 14px; font-size: 0.85rem;" onclick="muatDataDariCloud()">
+                        <i class="fa-solid fa-rotate"></i> Segarkan Data (Refresh)
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="tabelStok">
+                        <thead>
+                            <tr>
+                                <th><i class="fa-solid fa-clock"></i> Waktu Input</th>
+                                <th><i class="fa-solid fa-barcode"></i> Kode Barang</th>
+                                <th><i class="fa-solid fa-box"></i> Nama Barang</th>
+                                <th><i class="fa-solid fa-arrow-up-9-1"></i> Jumlah</th>
+                                <th><i class="fa-solid fa-circle-info"></i> Status</th>
+                                <th><i class="fa-solid fa-user-feather"></i> Petugas Input</th>
+                                <th class="no-export"><i class="fa-solid fa-sliders"></i> Aksi Kontrol</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataStok"></tbody>
+                    </table>
+                </div>
             </div>
+
+            <div id="adminRekapPanel" class="pro-card" style="display: none; border-top: 4px solid var(--primary);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap:10px;">
+                    <div class="card-header-container" style="margin:0; border:none; padding:0;">
+                        <i class="fa-solid fa-chart-pie" style="color: var(--warning);"></i>
+                        <h3>📊 Rekap Otomatis Akumulasi Stok Global (Semua Cabang)</h3>
+                    </div>
+                    <button class="btn-action-premium btn-pro-warning" onclick="exportKeExcel('tabelRekapGlobal', 'Rekap_Stok_Global_Terhitung')">
+                        <i class="fa-solid fa-download"></i> Export Hasil Rekap ke Excel
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabelRekapGlobal">
+                        <thead>
+                            <tr style="background-color: #0F172A;">
+                                <th style="color:white;">Kode Barang</th>
+                                <th style="color:white;">Nama Barang</th>
+                                <th style="color:white;">Total Stok Masuk</th>
+                                <th style="color:white;">Total Barang Keluar</th>
+                                <th style="color:white;">Sisa Stok Akhir</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataRekapGlobal"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="adminControlPanel" class="pro-card" style="display: none; background: #FFFDF5; border: 1px solid #FDE68A;">
+                <div class="card-header-container">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--danger);"></i>
+                    <h3>🛡️ Panel Kontrol Akun Staff (Master Control Online)</h3>
+                </div>
+                
+                <div class="admin-grid-layout">
+                    <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                        <h4 style="margin-bottom:15px;"><i class="fa-solid fa-user-plus" style="color:var(--accent-blue);"></i> Tambah / Ubah Password</h4>
+                        <form id="userManagementForm" onsubmit="simpanUserbaru(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                            <input type="text" id="newUsername" class="pro-input" style="padding-left:14px;" placeholder="Username User Baru" required>
+                            <input type="text" id="newPassword" class="pro-input" style="padding-left:14px;" placeholder="Password Baru" required>
+                            <button type="submit" id="btnSimpanUser" class="btn-action-premium btn-pro-info" style="justify-content: center;">
+                                <i class="fa-solid fa-floppy-disk"></i> Simpan ke Cloud
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                        <h4 style="margin-bottom:15px;"><i class="fa-solid fa-users-gear" style="color:var(--text-muted);"></i> Daftar Akses Terdaftar</h4>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Username / Identitas</th>
+                                        <th>Password Akses</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="daftarUserTabel"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
 <script>
-    // MASUKKAN URL WEB APP ANDA DI BAWAH INI
+    // URL CLOUD WEB APP GOOGLE APPS SCRIPT
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw8RuUSkRqLg5udl_PBX0We1I_Y5GL5YBoezDe4DRAt9QIIkxV2dawtQY8QnbsMotqw/exec";
 
     const userDefault = {
@@ -186,7 +723,7 @@
             
             muatDataDariCloud();
         } else {
-            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('mainPage').style.display = 'none';
         }
     }
@@ -207,7 +744,7 @@
     }
 
     function prosesLogout() {
-        if(confirm("Apakah Anda ingin logout?")) {
+        if(confirm("Apakah Anda ingin keluar (logout) dari sistem Pro+?")) {
             localStorage.removeItem('currentUser');
             currentUser = "";
             cekStatusLogin();
@@ -259,7 +796,7 @@
         const status = document.getElementById('status').value;
         const waktu = new Date().toLocaleString('id-ID');
 
-        document.getElementById('loadingForm').style.display = 'inline';
+        document.getElementById('loadingForm').style.display = 'inline-flex';
         document.getElementById('btnSimpan').disabled = true;
 
         let payload = {};
@@ -293,17 +830,17 @@
         document.getElementById('jumlahStok').value = jumlah;
         document.getElementById('status').value = status;
         
-        document.getElementById('btnSimpan').innerText = "Simpan Perubahan";
-        document.getElementById('btnSimpan').style.backgroundColor = "#ffc107";
+        document.getElementById('textTombolSimpan').innerText = "Simpan Perubahan";
+        document.getElementById('btnSimpan').style.background = "var(--warning)";
         document.getElementById('btnSimpan').style.color = "black";
-        document.getElementById('btnBatalEdit').style.display = 'inline';
+        document.getElementById('btnBatalEdit').style.display = 'inline-flex';
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     function hapusDataOnline(rowId) {
-        if (!confirm("Apakah Anda yakin ingin menghapus permanent data ini dari sistem online?")) return;
+        if (!confirm("Apakah Anda yakin ingin menghapus permanen data ini dari sistem online?")) return;
 
-        document.getElementById('loadingForm').style.display = 'inline';
+        document.getElementById('loadingForm').style.display = 'inline-flex';
         
         const payload = {
             action: "hapus",
@@ -328,8 +865,8 @@
     function resetFormInput() {
         document.getElementById('editRowId').value = "-1";
         document.getElementById('stokForm').reset();
-        document.getElementById('btnSimpan').innerText = "Tambah Data Online";
-        document.getElementById('btnSimpan').style.backgroundColor = "#28a745";
+        document.getElementById('textTombolSimpan').innerText = "Tambah Data Online";
+        document.getElementById('btnSimpan').style.background = "var(--success)";
         document.getElementById('btnSimpan').style.color = "white";
         document.getElementById('btnBatalEdit').style.display = 'none';
         document.getElementById('loadingForm').style.display = 'none';
@@ -345,26 +882,33 @@
             const namaPetugas = item.petugas || "Sistem";
             if (filter !== "Semua" && !namaPetugas.startsWith(filter)) return; 
 
-            const badgeStatus = item.status === "Keluar" ? `<span class="badge-bahaya">Keluar</span>` : `<span class="badge-sukses">Masuk</span>`;
+            const badgeStatus = item.status === "Keluar" ? 
+                `<span class="badge-premium bg-badge-danger"><i class="fa-solid fa-arrow-trend-down"></i> Keluar</span>` : 
+                `<span class="badge-premium bg-badge-success"><i class="fa-solid fa-arrow-trend-up"></i> Masuk</span>`;
 
             let tombolAksi = '-';
             const petugasDasar = namaPetugas.split(" ")[0].toLowerCase();
             const userAktifDasar = currentUser.toLowerCase();
 
             if (userAktifDasar === 'admin' || userAktifDasar === petugasDasar) {
+                // IKON PREMIUM UNTUK EDIT & HAPUS
                 tombolAksi = `
-                    <button class="btn-edit" onclick="persiapkanEdit('${item.rowId}', '${item.kode}', '${item.nama}', ${item.jumlah}, '${item.status}')">Edit</button>
-                    <button class="btn-delete" onclick="hapusDataOnline('${item.rowId}')">Hapus</button>
+                    <button class="btn-table-action btn-table-edit" onclick="persiapkanEdit('${item.rowId}', '${item.kode}', '${item.nama}', ${item.jumlah}, '${item.status}')">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </button>
+                    <button class="btn-table-action btn-table-delete" onclick="hapusDataOnline('${item.rowId}')">
+                        <i class="fa-solid fa-trash-can"></i> Hapus
+                    </button>
                 `;
             }
 
             const row = `<tr>
-                <td>${item.waktu}</td>
-                <td><strong>${item.kode}</strong></td>
-                <td>${item.nama}</td>
-                <td>${item.jumlah}</td>
+                <td><small style="color:var(--text-muted); font-weight:500;">${item.waktu}</small></td>
+                <td><span style="font-family: monospace; font-weight:700; background:#EDF2F7; padding:2px 6px; border-radius:4px;">${item.kode}</span></td>
+                <td><strong>${item.nama}</strong></td>
+                <td><strong style="color:var(--primary); font-size:1.05rem;">${item.jumlah}</strong> pcs</td>
                 <td>${badgeStatus}</td>
-                <td><span class="badge-user">${namaPetugas}</span></td>
+                <td><span class="badge-premium bg-badge-info"><i class="fa-solid fa-user-tag"></i> ${namaPetugas}</span></td>
                 <td class="no-export">${tombolAksi}</td>
             </tr>`;
             tbody.innerHTML += row;
@@ -396,14 +940,14 @@
         Object.keys(rekapObjek).forEach(kode => {
             const item = rekapObjek[kode];
             const sisaStok = item.totalMasuk - item.totalKeluar;
-            const warnaStok = sisaStok <= 0 ? 'style="color: red; font-weight: bold;"' : '';
+            const warnaStok = sisaStok <= 0 ? 'style="color: var(--danger); font-weight: bold;"' : 'style="color: var(--primary); font-weight: bold;"';
 
             const row = `<tr>
-                <td><strong>${kode}</strong></td>
-                <td>${item.namaBarang}</td>
-                <td style="color: green;">+ ${item.totalMasuk}</td>
-                <td style="color: #dc3545;">- ${item.totalKeluar}</td>
-                <td ${warnaStok}><strong>${sisaStok}</strong></td>
+                <td><span style="font-family: monospace; font-weight:700; background:#EDF2F7; padding:2px 6px; border-radius:4px;">${kode}</span></td>
+                <td><strong>${item.namaBarang}</strong></td>
+                <td style="color: var(--success); font-weight:600;"><i class="fa-solid fa-square-plus"></i> + ${item.totalMasuk}</td>
+                <td style="color: var(--danger); font-weight:600;"><i class="fa-solid fa-square-minus"></i> - ${item.totalKeluar}</td>
+                <td ${warnaStok}><i class="fa-solid fa-boxes-stacked"></i> ${sisaStok}</td>
             </tr>`;
             tbody.innerHTML += row;
         });
@@ -430,10 +974,13 @@
         tbody.innerHTML = '';
         Object.keys(basisDataUser).forEach(username => {
             const row = `<tr>
-                <td><strong>${username}</strong> (${basisDataUser[username].role})</td>
-                <td><code>${basisDataUser[username].password}</code></td>
+                <td><strong style="color:var(--accent-blue);"><i class="fa-solid fa-user-shield"></i> ${username}</strong> <span style="font-size:0.8rem; color:var(--text-muted)">(${basisDataUser[username].role})</span></td>
+                <td><code style="background:#F1F5F9; padding:4px 8px; border-radius:4px; font-weight:600;">${basisDataUser[username].password}</code></td>
                 <td>
-                    ${username === 'admin' ? '-' : `<button class="btn-delete" onclick="hapusUser('${username}')">Hapus</button>`}
+                    ${username === 'admin' ? '-' : `
+                    <button class="btn-table-action btn-table-delete" onclick="hapusUser('${username}')">
+                        <i class="fa-solid fa-user-xmark"></i> Hapus Akses
+                    </button>`}
                 </td>
             </tr>`;
             tbody.innerHTML += row;
@@ -448,7 +995,7 @@
 
         const btn = document.getElementById('btnSimpanUser');
         btn.disabled = true;
-        btn.innerText = "Menyimpan ke Cloud...";
+        btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Menyimpan...";
 
         const payload = {
             action: "simpan_user",
@@ -473,7 +1020,7 @@
         .catch(err => alert("Gagal menyimpan user ke cloud. Coba lagi."))
         .finally(() => {
             btn.disabled = false;
-            btn.innerText = "Simpan ke Cloud";
+            btn.innerHTML = "<i class='fa-solid fa-floppy-disk'></i> Simpan ke Cloud";
         });
     }
 
